@@ -28,4 +28,4 @@ mono "Lantronix Netzwerk Tool/Lantronix Netzwerk Tool/bin/Debug/Lantronix Netzwe
 
 ## Lizenz / License
 
-MIT
+[MIT](LICENSE).
