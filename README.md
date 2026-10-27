@@ -1,31 +1,35 @@
-# Lantronix Netzwerk Tool
+# Lantronix network tool
 
-![Screenshot](docs/screenshot.png)
+<p>
+  <a href="https://github.com/TechnikWeber/lantronix-network-tool/releases/latest"><img alt="Download" src="https://img.shields.io/github/v/release/TechnikWeber/lantronix-network-tool?label=download"></a>
+  <img alt="Platform: Windows, Linux with Mono" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20(Mono)-blue">
+  <img alt="UI language: German" src="https://img.shields.io/badge/UI-Deutsch-informational">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-green"></a>
+</p>
 
-## Deutsch
+A small Windows tool (C#, WinForms) that finds Lantronix devices on the local network with
+the Lantronix discovery protocol (UDP broadcast, port 30718) and shows their IP and MAC
+addresses. Search for all devices or for one specific MAC address; "Verbinden" (connect)
+opens the web interface of the selected device in your browser. The interface is in German.
 
-Kleines Windows-Tool (C#, WinForms), das Lantronix-Geräte per UDP-Broadcast (Port 30718) im lokalen Netzwerk findet und IP- und MAC-Adresse anzeigt. Man kann alle Geräte suchen oder gezielt nach einer MAC-Adresse. Mit „Verbinden“ öffnet sich die Weboberfläche des ausgewählten Geräts im Browser.
+![Lantronix network tool listing four devices with IP and MAC address](docs/screenshot.png)
 
-**Starten:** `Lantronix Netzwerk Tool/Lantronix Netzwerk Tool/bin/Debug/Lantronix Netzwerk Tool.exe` unter Windows öffnen oder die Solution in Visual Studio bauen. Unter Linux läuft das Programm mit Mono:
+## Download and run
 
-```bash
-mono "Lantronix Netzwerk Tool/Lantronix Netzwerk Tool/bin/Debug/Lantronix Netzwerk Tool.exe"
-```
+Get `lantronix-network-tool.exe` from the
+[latest release](https://github.com/TechnikWeber/lantronix-network-tool/releases/latest).
 
-**Demo ohne Hardware:** `python3 demo/fake_devices.py` simuliert vier Geräte auf dem eigenen Rechner. Damit ist auch der Screenshot oben entstanden.
+- **Windows 10/11:** just start it. The file is not signed; SmartScreen may warn
+  (*More info › Run anyway*).
+- **Linux:** run it with Mono: `mono lantronix-network-tool.exe`
 
-## English
+Or build the solution in Visual Studio.
 
-Small Windows tool (C#, WinForms) that finds Lantronix devices on the local network via UDP broadcast (port 30718) and shows their IP and MAC addresses. You can search for all devices or for one specific MAC address. "Verbinden" (connect) opens the web interface of the selected device in your browser.
+## Demo without hardware
 
-**Run:** open `Lantronix Netzwerk Tool/Lantronix Netzwerk Tool/bin/Debug/Lantronix Netzwerk Tool.exe` on Windows, or build the solution in Visual Studio. On Linux it runs with Mono:
+`python3 demo/fake_devices.py` simulates four devices on your own machine — that is how the
+screenshot above was made.
 
-```bash
-mono "Lantronix Netzwerk Tool/Lantronix Netzwerk Tool/bin/Debug/Lantronix Netzwerk Tool.exe"
-```
-
-**Demo without hardware:** `python3 demo/fake_devices.py` simulates four devices on your own machine. The screenshot above was taken this way.
-
-## Lizenz / License
+## License
 
 [MIT](LICENSE).

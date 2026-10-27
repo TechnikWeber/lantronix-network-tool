@@ -1,0 +1,47 @@
+# Builds the tool on a Windows machine at GitHub and attaches the .exe to a
+# release. Runs when a version tag (v1.2.3) is pushed, or by hand from the
+# Actions tab (then the file only ends up as a downloadable build artifact).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Build
+        shell: pwsh
+        run: |
+          # The project targets .NET Framework 4.6.1; its targeting pack is no longer on
+          # GitHub's Windows machines, so build against 4.8 (built into Windows 10 and 11).
+          msbuild "Lantronix Netzwerk Tool/Lantronix Netzwerk Tool/Lantronix Netzwerk Tool.csproj" `
+            /p:Configuration=Release /p:TargetFrameworkVersion=v4.8 /p:OutputPath=../../build/ /v:minimal
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item "build/Lantronix Netzwerk Tool.exe" dist/lantronix-network-tool.exe
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: lantronix-network-tool
+          path: dist/*.exe
+
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view $env:GITHUB_REF_NAME 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $env:GITHUB_REF_NAME --title $env:GITHUB_REF_NAME --notes "Built by GitHub Actions. Runs on Windows 10 and 11 (.NET Framework 4.8), on Linux with Mono. Not signed; SmartScreen may warn (More info › Run anyway)."
+          }
+          gh release upload $env:GITHUB_REF_NAME (Get-ChildItem dist/*.exe) --clobber
