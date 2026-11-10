@@ -21,7 +21,8 @@ Get `lantronix-network-tool.exe` from the
 
 - **Windows 10/11:** just start it. The file is not signed; SmartScreen may warn
   (*More info › Run anyway*).
-- **Linux:** run it with Mono: `mono lantronix-network-tool.exe`
+- **Linux:** run it with Mono: `mono lantronix-network-tool.exe`. Install Mono once with
+  `sudo apt install mono-complete` (Debian/Ubuntu) or `sudo dnf install mono-complete` (Fedora).
 
 Or build the solution in Visual Studio.
 
