@@ -1,7 +1,9 @@
 # Lantronix network tool
 
 <p>
-  <a href="https://github.com/TechnikWeber/lantronix-network-tool/releases/latest"><img alt="Download" src="https://img.shields.io/github/v/release/TechnikWeber/lantronix-network-tool?label=download"></a>
+  <a href="https://github.com/TechnikWeber/lantronix-network-tool/releases/latest"><img alt="Download" src="https://img.shields.io/github/v/release/TechnikWeber/lantronix-network-tool?label=download&color=2ea44f"></a>
+  <a href="https://github.com/TechnikWeber/lantronix-network-tool/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/TechnikWeber/lantronix-network-tool/total?color=blue"></a>
+  <a href="https://github.com/TechnikWeber/lantronix-network-tool/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/TechnikWeber/lantronix-network-tool?style=flat&color=yellow"></a>
   <img alt="Platform: Windows, Linux with Mono" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20(Mono)-blue">
   <img alt="UI language: German" src="https://img.shields.io/badge/UI-Deutsch-informational">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-green"></a>
