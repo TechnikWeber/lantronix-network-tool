@@ -15,8 +15,8 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: microsoft/setup-msbuild@v2
+      - uses: actions/checkout@v7
+      - uses: microsoft/setup-msbuild@v3
 
       - name: Build
         shell: pwsh
@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: cd dist && sha256sum *.exe > SHA256SUMS && cat SHA256SUMS
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: lantronix-network-tool
           path: dist/*
