@@ -37,8 +37,8 @@ public static class Program
         try
         {
             var list = args.ToList();
-            if (list.Count > 0 && list[0] is "-h" or "--help" or "help") { Console.WriteLine(Usage); return 0; }
-            if (list.Count > 0 && list[0] is "-V" or "--version") { Console.WriteLine(Version()); return 0; }
+            if (list.Any(a => a is "-h" or "--help" or "help")) { Console.WriteLine(Usage); return 0; }
+            if (list.Any(a => a is "-V" or "--version")) { Console.WriteLine(Version()); return 0; }
             if (list.Count > 0 && list[0] == "assign") return await Assign(list.Skip(1).ToList());
             if (list.Count > 0 && list[0] == "scan") list.RemoveAt(0);
             return await Scan(list);

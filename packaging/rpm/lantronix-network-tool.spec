@@ -29,14 +29,14 @@ the ARP way. Includes the command line tool lantronix-scan.
 %autosetup
 
 %build
+case %{_arch} in x86_64) rid=linux-x64 ;; aarch64) rid=linux-arm64 ;; esac
 for proj in src/LantronixScan src/LantronixTool; do
-    dotnet publish $proj -c Release -r linux-%{_arch} --self-contained false \
+    dotnet publish $proj -c Release -r $rid --self-contained false \
         -p:PublishTrimmed=false -p:DebugType=none -p:Version=%{version} -o out
 done
 rm -f out/*.pdb
-case %{_arch} in x86_64) keep=linux-x64 ;; aarch64) keep=linux-arm64 ;; esac
 # SkiaSharp/HarfBuzz ship natives for every platform; keep ours
-find out/runtimes -mindepth 1 -maxdepth 1 ! -name "$keep" -exec rm -rf {} + 2>/dev/null || true
+find out/runtimes -mindepth 1 -maxdepth 1 ! -name "$rid" -exec rm -rf {} + 2>/dev/null || true
 
 %install
 install -d %{buildroot}%{_libdir}/%{name}
