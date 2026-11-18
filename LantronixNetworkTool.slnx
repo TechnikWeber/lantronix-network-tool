@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Lantronix.Discovery/Lantronix.Discovery.csproj" />
+    <Project Path="src/LantronixScan/LantronixScan.csproj" />
+    <Project Path="src/LantronixTool/LantronixTool.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Lantronix.Discovery.Tests/Lantronix.Discovery.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Screenshot/Screenshot.csproj" />
+  </Folder>
+</Solution>

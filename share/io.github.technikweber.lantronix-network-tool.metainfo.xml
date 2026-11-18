@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.technikweber.lantronix-network-tool</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Lantronix Network Tool</name>
+  <summary>Find Lantronix device servers on the network and assign an IP address</summary>
+  <description>
+    <p>
+      Asks every Lantronix device server on the local network (XPort, UDS, EDS, MSS, WiPort …)
+      for its IP and MAC address with the Lantronix discovery protocol, and opens its web
+      interface. Devices without a usable address get a temporary one the ARP way.
+    </p>
+  </description>
+  <launchable type="desktop-id">lantronix-network-tool.desktop</launchable>
+  <url type="homepage">https://github.com/TechnikWeber/lantronix-network-tool</url>
+  <developer id="io.github.technikweber"><name>Philipp Weber</name></developer>
+  <provides><binary>lantronix-network-tool</binary><binary>lantronix-scan</binary></provides>
+  <releases>
+    <release version="2.0.0" date="2026-11-18"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>

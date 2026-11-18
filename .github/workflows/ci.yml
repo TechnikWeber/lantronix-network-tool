@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Tests
+        run: dotnet test --project tests/Lantronix.Discovery.Tests
+      - name: Build everything
+        run: dotnet build LantronixNetworkTool.slnx -warnaserror
+
+  window:
+    # renders the window offscreen after a search against the demo devices
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Search the demo devices and render the window
+        run: |
+          python3 demo/fake_devices.py &
+          sleep 1
+          dotnet run --project src/LantronixScan -- --json --first -m 2f-3c | tee found.json
+          grep -q '"mac": "00-80-A3-BE-2F-3C"' found.json
+          LANTRONIX_LANG=en dotnet run --project tools/Screenshot -- window.png --search
+          dotnet run --no-build --project tools/Screenshot -- assign.png --assign --dark
+      - uses: actions/upload-artifact@v7
+        with:
+          name: screenshots
+          path: "*.png"

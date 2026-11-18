@@ -1,51 +1,146 @@
-# Builds the tool on a Windows machine at GitHub and attaches the .exe to a
-# release. Runs when a version tag (v1.2.3) is pushed, or by hand from the
-# Actions tab (then the file only ends up as a downloadable build artifact).
-name: Release
+name: release
 
+# Tag v1.2.3 -> GitHub release with the window for Windows, Linux (AppImage, RPM) and
+# macOS, plus lantronix-scan for each. "Run workflow" by hand builds the same files as
+# artifacts only.
 on:
   push:
-    tags: ['v*']
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
   contents: write
 
+env:
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+
 jobs:
-  build:
+  windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: microsoft/setup-msbuild@v3
-
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
       - name: Build
         shell: pwsh
         run: |
-          # The project targets .NET Framework 4.6.1; its targeting pack is no longer on
-          # GitHub's Windows machines, so build against 4.8 (built into Windows 10 and 11).
-          msbuild "Lantronix Netzwerk Tool/Lantronix Netzwerk Tool/Lantronix Netzwerk Tool.csproj" `
-            /p:Configuration=Release /p:TargetFrameworkVersion=v4.8 /p:OutputPath=../../build/ /v:minimal
+          $v = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { (Select-Xml -Path Directory.Build.props -XPath //Version).Node.InnerText }
+          $common = @('-c','Release','-r','win-x64','--self-contained','-p:PublishSingleFile=true','-p:PublishTrimmed=true','-p:DebugType=none',"-p:Version=$v")
+          dotnet publish src/LantronixTool @common -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o build/gui
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          dotnet publish src/LantronixScan @common -o build/cli
           if ($LASTEXITCODE -ne 0) { exit 1 }
           New-Item -ItemType Directory -Force dist | Out-Null
-          Copy-Item "build/Lantronix Netzwerk Tool.exe" dist/lantronix-network-tool.exe
-
-      - name: Checksums
-        shell: bash
-        run: cd dist && sha256sum *.exe > SHA256SUMS && cat SHA256SUMS
-
+          Copy-Item build/gui/lantronix-network-tool.exe "dist/lantronix-network-tool-$v-windows-x64.exe"
+          Copy-Item build/cli/lantronix-scan.exe "dist/lantronix-scan-$v-windows-x64.exe"
+      - name: Start test
+        shell: pwsh
+        run: |
+          $cli = Get-Item dist/lantronix-scan-*.exe
+          & $cli.FullName --version
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          $gui = Get-Item dist/lantronix-network-tool-*.exe
+          $p = Start-Process -FilePath $gui.FullName -ArgumentList "--version" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "exit code $($p.ExitCode)" }
       - uses: actions/upload-artifact@v7
         with:
-          name: lantronix-network-tool
+          name: windows
           path: dist/*
 
-      - name: Attach to the release
-        if: startsWith(github.ref, 'refs/tags/')
-        shell: pwsh
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then v="${GITHUB_REF_NAME#v}"; else v="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Directory.Build.props)"; fi
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+      - name: AppImage
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: packaging/appimage/build.sh
+      - name: lantronix-scan for x64 and arm64 (Raspberry Pi)
+        run: |
+          for rid in linux-x64 linux-arm64; do
+            dotnet publish src/LantronixScan -c Release -r $rid --self-contained -p:PublishSingleFile=true \
+              -p:DebugType=none -p:Version="$VERSION" -o build/cli-$rid
+            tar -czf dist/lantronix-scan-$VERSION-$rid.tar.gz -C build/cli-$rid lantronix-scan
+          done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux
+          path: dist/*
+      - name: Start test on Fedora
+        run: |
+          docker run --rm -v "$PWD/dist:/dist:ro" registry.fedoraproject.org/fedora:45 bash -ec '
+            dnf install -y -q libicu fontconfig >/dev/null
+            cd /tmp
+            /dist/lantronix-network-tool-*-x86_64.AppImage --appimage-extract-and-run --version
+            /dist/lantronix-network-tool-*-x86_64.AppImage --appimage-extract-and-run scan --version
+            tar -xzf /dist/lantronix-scan-*-linux-x64.tar.gz && ./lantronix-scan --version'
+
+  rpm:
+    runs-on: ubuntu-latest
+    container: registry.fedoraproject.org/fedora:45
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build RPM
+        run: packaging/rpm/build.sh
+      - name: Install and start
+        run: |
+          dnf install -y dist/*.x86_64.rpm
+          lantronix-scan --version
+          lantronix-network-tool --version
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rpm
+          path: dist/*.rpm
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Build
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then export VERSION="${GITHUB_REF_NAME#v}"; fi
+          packaging/macos/build.sh arm64
+          packaging/macos/build.sh x64
+      - name: Start test
+        run: |
+          cd build/macos-arm64
+          "Lantronix Network Tool.app/Contents/MacOS/lantronix-network-tool" --version
+          cli/lantronix-scan --version
+      - uses: actions/upload-artifact@v7
+        with:
+          name: macos
+          path: dist/*
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, linux, rpm, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Checksums
+        run: cd dist && sha256sum -- * > SHA256SUMS && cat SHA256SUMS
+      - name: Release notes from CHANGELOG.md
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '$0 ~ "^## \\[?"v"\\]?" {f=1; next} /^## / {f=0} f' CHANGELOG.md > notes.md
+          cat notes.md
+      - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release view $env:GITHUB_REF_NAME 2>$null
-          if ($LASTEXITCODE -ne 0) {
-            gh release create $env:GITHUB_REF_NAME --title $env:GITHUB_REF_NAME --notes "Built by GitHub Actions. Runs on Windows 10 and 11 (.NET Framework 4.8), on Linux with Mono. Not signed; SmartScreen may warn (More info › Run anyway)."
-          }
-          gh release upload $env:GITHUB_REF_NAME (Get-ChildItem dist/*) --clobber
+        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file notes.md dist/*

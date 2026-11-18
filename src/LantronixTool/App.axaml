@@ -1,0 +1,39 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LantronixTool.App"
+             Name="Lantronix Network Tool"
+             RequestedThemeVariant="Default">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="HintBrush" Color="#5c6370" />
+          <SolidColorBrush x:Key="CardBrush" Color="#ffffff" />
+          <SolidColorBrush x:Key="CardBorderBrush" Color="#d0d4da" />
+          <SolidColorBrush x:Key="HeaderBrush" Color="#f3f5f7" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="HintBrush" Color="#a3abb6" />
+          <SolidColorBrush x:Key="CardBrush" Color="#1c1f24" />
+          <SolidColorBrush x:Key="CardBorderBrush" Color="#3a3f47" />
+          <SolidColorBrush x:Key="HeaderBrush" Color="#24282e" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+  <Application.Styles>
+    <FluentTheme />
+    <Style Selector="TextBlock.hint">
+      <Setter Property="Foreground" Value="{DynamicResource HintBrush}" />
+    </Style>
+    <Style Selector="TextBlock.mono">
+      <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, DejaVu Sans Mono, Menlo, monospace" />
+    </Style>
+    <Style Selector="TextBox.mono">
+      <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, DejaVu Sans Mono, Menlo, monospace" />
+    </Style>
+    <Style Selector="SelectableTextBlock.mono">
+      <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, DejaVu Sans Mono, Menlo, monospace" />
+    </Style>
+  </Application.Styles>
+</Application>

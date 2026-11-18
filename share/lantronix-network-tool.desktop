@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Lantronix Network Tool
+GenericName=Lantronix device finder
+GenericName[de]=Lantronix-Gerätesuche
+Comment=Find Lantronix device servers on the network and assign an IP address
+Comment[de]=Lantronix-Geräte im Netzwerk finden und ihnen eine IP-Adresse geben
+Exec=lantronix-network-tool
+Icon=lantronix-network-tool
+Terminal=false
+Categories=Network;Utility;
+Keywords=lantronix;xport;uds;eds;device server;discovery;ip;mac;network;
+Keywords[de]=lantronix;xport;uds;eds;geräteserver;suche;ip;mac;netzwerk;
+StartupNotify=true
+StartupWMClass=lantronix-network-tool
